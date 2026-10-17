@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prisanalyse – dagens avtale mot Eneas</title>
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --green: #293E38;
+    --green-deep: #1B2A25;
+    --mint: #ECF3F1;
+    --mint-2: #DCE6E4;
+    --paper: #FCFFFC;
+    --orange: #FDB05E;
+    --orange-soft: #FFE6CC;
+    --ink: #1B2A25;
+    --muted: #5E716B;
+    --line: #C9D6D2;
+    --serif: Georgia, "Times New Roman", serif;
+    --sans: "DM Sans", "Segoe UI", Arial, sans-serif;
+    font-size: clamp(10px, min(1.15vw, 2.05vh), 20px);
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--mint);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-variant-numeric: tabular-nums;
+    display: flex; flex-direction: column;
+    padding: 2.2rem 2.6rem 1.6rem;
+    gap: 1.4rem;
+    overflow: hidden;
+  }
+  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: 2.6rem; color: var(--green); line-height: 1.05; }
+  .usage { display: flex; align-items: center; gap: .9rem; background: var(--paper); border: 1px solid var(--line); border-radius: .6rem; padding: .55rem .6rem .55rem 1.1rem; }
+  .usage span { color: var(--muted); font-size: 1rem; white-space: nowrap; }
+  .usage input { width: 11rem; font-size: 1.5rem; }
+
+  main { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr 1.05fr; gap: 1.4rem; }
+  .col { background: var(--paper); border: 1px solid var(--line); border-radius: .8rem; padding: 1.3rem 1.4rem; display: flex; flex-direction: column; min-height: 0; }
+  .col h2 { font-family: var(--serif); font-weight: 400; font-size: 1.6rem; color: var(--green); margin-bottom: .9rem; }
+  .col.eneas { border-color: var(--green); box-shadow: inset 0 .3rem 0 var(--green); }
+
+  .fields { display: grid; gap: .55rem; }
+  .field { display: grid; grid-template-columns: 1fr 7.2rem; align-items: center; gap: .8rem; }
+  .field label { font-size: 1.05rem; }
+  .field label small { display: block; color: var(--muted); font-size: .82rem; }
+  .inwrap { position: relative; }
+  input[type=text] {
+    width: 100%; font: 500 1.2rem/1 var(--sans); font-variant-numeric: tabular-nums; color: var(--ink);
+    text-align: right; background: var(--mint); border: 1.5px solid transparent; border-radius: .45rem;
+    padding: .45rem .6rem;
+  }
+  input[type=text]:hover { border-color: var(--line); }
+  input[type=text]:focus { outline: none; border-color: var(--orange); background: #fff; box-shadow: 0 0 0 .2rem var(--orange-soft); }
+  input[type=text].empty { background: var(--orange-soft); }
+  input[type=text]:disabled { opacity: .35; }
+
+  .toggle { display: flex; align-items: center; gap: .55rem; cursor: pointer; }
+  .toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .switch { width: 2.3rem; height: 1.3rem; border-radius: 1rem; background: var(--line); position: relative; flex: none; transition: background .15s; }
+  .switch::after { content: ""; position: absolute; top: .15rem; left: .15rem; width: 1rem; height: 1rem; border-radius: 50%; background: #fff; transition: transform .15s; }
+  .toggle input:checked + .switch { background: var(--green); }
+  .toggle input:checked + .switch::after { transform: translateX(1rem); }
+  .toggle input:focus-visible + .switch { box-shadow: 0 0 0 .2rem var(--orange); }
+
+  .ledger { margin-top: auto; padding-top: 1rem; border-top: 1px dashed var(--line); display: grid; gap: .35rem; font-size: .98rem; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: .6rem; align-items: baseline; }
+  .row .how { color: var(--muted); font-size: .85rem; display: block; }
+  .row .val { font-weight: 500; text-align: right; white-space: nowrap; }
+  .row.off { opacity: .3; }
+  .row.total { border-top: 1.5px solid var(--green); padding-top: .45rem; margin-top: .2rem; font-size: 1.15rem; }
+  .row.total .val { font-weight: 700; }
+  .flash { animation: flash .6s ease-out; }
+  @keyframes flash { from { background: var(--orange-soft); } to { background: transparent; } }
+
+  .result { background: var(--green); color: var(--paper); border: 0; display: flex; flex-direction: column; }
+  .result h2 { color: var(--paper); }
+  .hero-label { font-size: 1.05rem; color: var(--mint-2); }
+  .hero { font-family: var(--serif); font-size: 4.4rem; line-height: 1; color: var(--orange); margin: .3rem 0 .2rem; white-space: nowrap; }
+  .hero.neg { color: #F4A3A3; }
+  .sub { color: var(--mint-2); font-size: 1.05rem; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem 1.2rem; margin: 1.3rem 0; }
+  .stat b { display: block; font-size: 1.7rem; font-weight: 700; }
+  .stat span { color: var(--mint-2); font-size: .9rem; }
+  .bars { margin-top: auto; display: grid; gap: .55rem; }
+  .bar { display: grid; grid-template-columns: 4.6rem 1fr; align-items: center; gap: .7rem; font-size: .9rem; color: var(--mint-2); }
+  .bar .track { height: 1.6rem; background: rgba(255,255,255,.08); border-radius: .3rem; overflow: hidden; }
+  .bar .fill { height: 100%; width: 0; border-radius: .3rem; display: flex; align-items: center; justify-content: flex-end; padding-right: .5rem; font-size: .85rem; font-weight: 500; color: var(--green-deep); transition: width .5s cubic-bezier(.2,.7,.2,1); white-space: nowrap; }
+  .bar.today .fill { background: var(--mint-2); }
+  .bar.eneas .fill { background: var(--orange); }
+  .waiting { color: var(--mint-2); font-size: 1.1rem; line-height: 1.4; margin-top: 1rem; }
+
+  footer { display: flex; justify-content: space-between; color: var(--muted); font-size: .85rem; }
+  @media (prefers-reduced-motion: reduce) { .flash { animation: none; } .bar .fill { transition: none; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Prisanalyse<br>dagens avtale mot Eneas</h1>
+  <div class="usage">
+    <span>Årsforbruk, kWh</span>
+    <input type="text" inputmode="decimal" id="forbruk" value="1 500 000" aria-label="Årsforbruk i kWh">
+  </div>
+</header>
+
+<main>
+  <section class="col" aria-labelledby="h-today">
+    <h2 id="h-today">Dagens situasjon</h2>
+    <div class="fields">
+      <div class="field"><label for="d_spot">Strømpris siste måned<small>øre/kWh</small></label><input type="text" inputmode="decimal" id="d_spot" placeholder="Fyll inn"></div>
+      <div class="field"><label for="d_paslag">Påslag<small>øre/kWh</small></label><input type="text" inputmode="decimal" id="d_paslag" value="6,5"></div>
+      <div class="field"><label for="d_tillegg">Tilleggstjenester<small>øre/kWh</small></label><input type="text" inputmode="decimal" id="d_tillegg" value="1"></div>
+      <div class="field"><label for="d_fast">Faste kostnader<small>kr per måned</small></label><input type="text" inputmode="decimal" id="d_fast" value="59"></div>
+    </div>
+    <div class="ledger" id="l_today"></div>
+  </section>
+
+  <section class="col eneas" aria-labelledby="h-eneas">
+    <h2 id="h-eneas">Eneas</h2>
+    <div class="fields">
+      <div class="field"><label for="e_pris">Eneas forvaltet pris siste måned<small>øre/kWh</small></label><input type="text" inputmode="decimal" id="e_pris" placeholder="Fyll inn"></div>
+      <div class="field"><label for="e_paslag">Påslag<small>øre/kWh</small></label><input type="text" inputmode="decimal" id="e_paslag" value="1,5"></div>
+      <div class="field">
+        <label class="toggle" for="e_fornybar_on"><input type="checkbox" id="e_fornybar_on" checked><span class="switch"></span><span>100 % fornybart<small>øre/kWh</small></span></label>
+        <input type="text" inputmode="decimal" id="e_fornybar" value="1" aria-label="Pris for 100 % fornybart, øre per kWh">
+      </div>
+      <div class="field"><label for="e_fast">Faste kostnader<small>kr per år</small></label><input type="text" inputmode="decimal" id="e_fast" value="390"></div>
+    </div>
+    <div class="ledger" id="l_eneas"></div>
+  </section>
+
+  <section class="col result" aria-live="polite">
+    <h2>Resultat</h2>
+    <div id="res"></div>
+  </section>
+</main>
+
+<footer>
+  <span>Årskostnad beregnet med siste måneds pris på hele årsforbruket. Alle beløp eks. mva.</span>
+  <span>Historiske priser gir ingen garanti for fremtidig besparelse</span>
+</footer>
+
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const ids = ["forbruk","d_spot","d_paslag","d_tillegg","d_fast","e_pris","e_paslag","e_fornybar","e_fast"];
+  const nf = (d) => new Intl.NumberFormat("nb-NO", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const kr = v => nf(0).format(Math.round(v)) + " kr";
+  const ore = v => nf(2).format(v);
+  const num = v => nf(0).format(v);
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function parse(id) {
+    const raw = $(id).value.replace(/\s|\u00a0/g, "").replace(",", ".");
+    if (raw === "") return null;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  const last = {};
+  function row(key, label, how, value, cls) {
+    const txt = value == null ? "–" : kr(value);
+    const changed = last[key] !== undefined && last[key] !== txt;
+    last[key] = txt;
+    return `<div class="row ${cls || ""}${changed ? " flash" : ""}"><span>${label}<span class="how">${how}</span></span><span class="val">${txt}</span></div>`;
+  }
+
+  // Animated counter for the hero number
+  let heroFrom = 0, heroRaf = 0;
+  function animateHero(el, to) {
+    cancelAnimationFrame(heroRaf);
+    if (reduce) { el.textContent = kr(to); heroFrom = to; return; }
+    const from = heroFrom, t0 = performance.now(), dur = 450;
+    const step = t => {
+      const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      const v = from + (to - from) * e;
+      el.textContent = kr(v); heroFrom = v;
+      if (p < 1) heroRaf = requestAnimationFrame(step);
+    };
+    heroRaf = requestAnimationFrame(step);
+  }
+
+  function calc() {
+    const kwh = parse("forbruk") || 0;
+    const v = Object.fromEntries(ids.map(i => [i, parse(i)]));
+    const fornybarOn = $("e_fornybar_on").checked;
+    $("e_fornybar").disabled = !fornybarOn;
+    ["d_spot","e_pris"].forEach(i => $(i).classList.toggle("empty", v[i] == null));
+
+    const k = ore => ore == null ? null : kwh * ore / 100;
+    const sum = arr => arr.some(x => x == null) ? null : arr.reduce((a, b) => a + b, 0);
+
+    // Dagens
+    const dS = k(v.d_spot), dP = k(v.d_paslag || 0), dT = k(v.d_tillegg || 0), dF = (v.d_fast || 0) * 12;
+    const dTot = sum([dS, dP, dT, dF]);
+    $("l_today").innerHTML =
+      row("dS", "Strøm", `${num(kwh)} kWh × ${v.d_spot == null ? "?" : ore(v.d_spot)} øre`, dS) +
+      row("dP", "Påslag", `${num(kwh)} kWh × ${ore(v.d_paslag || 0)} øre`, dP) +
+      row("dT", "Tilleggstjenester", `${num(kwh)} kWh × ${ore(v.d_tillegg || 0)} øre`, dT) +
+      row("dF", "Faste kostnader", `${num(v.d_fast || 0)} kr × 12 mnd`, dF) +
+      row("dTot", "Årskostnad", "", dTot, "total");
+
+    // Eneas
+    const eS = k(v.e_pris), eP = k(v.e_paslag || 0), eR = fornybarOn ? k(v.e_fornybar || 0) : 0, eF = v.e_fast || 0;
+    const eTot = sum([eS, eP, eR, eF]);
+    $("l_eneas").innerHTML =
+      row("eS", "Forvaltet strøm", `${num(kwh)} kWh × ${v.e_pris == null ? "?" : ore(v.e_pris)} øre`, eS) +
+      row("eP", "Påslag", `${num(kwh)} kWh × ${ore(v.e_paslag || 0)} øre`, eP) +
+      row("eR", "100 % fornybart", fornybarOn ? `${num(kwh)} kWh × ${ore(v.e_fornybar || 0)} øre` : "Ikke valgt", eR, fornybarOn ? "" : "off") +
+      row("eF", "Faste kostnader", "Per år", eF) +
+      row("eTot", "Årskostnad", "", eTot, "total");
+
+    // Resultat
+    const res = $("res");
+    if (dTot == null || eTot == null || kwh <= 0) {
+      res.innerHTML = `<p class="waiting">Fyll inn strømprisen for siste måned i begge kolonnene, så regnes besparelsen ut her.</p>`;
+      heroFrom = 0; return;
+    }
+    const diff = dTot - eTot, pct = dTot > 0 ? diff / dTot * 100 : 0;
+    const dEff = dTot / kwh * 100, eEff = eTot / kwh * 100;
+    const max = Math.max(dTot, eTot) || 1;
+    if (!res.querySelector(".hero")) {
+      res.innerHTML = `
+        <div class="hero-label" id="r_label"></div>
+        <div class="hero" id="r_hero">0 kr</div>
+        <div class="sub" id="r_sub"></div>
+        <div class="stats">
+          <div class="stat"><b id="r_mnd"></b><span>per måned</span></div>
+          <div class="stat"><b id="r_pct"></b><span>lavere årskostnad</span></div>
+          <div class="stat"><b id="r_dEff"></b><span>øre/kWh i dag, alt inkludert</span></div>
+          <div class="stat"><b id="r_eEff"></b><span>øre/kWh med Eneas, alt inkludert</span></div>
+        </div>
+        <div class="bars">
+          <div class="bar today"><span>I dag</span><div class="track"><div class="fill" id="b_today"></div></div></div>
+          <div class="bar eneas"><span>Eneas</span><div class="track"><div class="fill" id="b_eneas"></div></div></div>
+        </div>`;
+    }
+    $("r_label").textContent = diff >= 0 ? "Årlig besparelse med Eneas" : "Årlig merkostnad med Eneas";
+    const hero = $("r_hero");
+    hero.classList.toggle("neg", diff < 0);
+    animateHero(hero, Math.abs(diff));
+    $("r_sub").textContent = `${ore(Math.abs(dEff - eEff))} øre/kWh ${diff >= 0 ? "lavere" : "høyere"} totalpris`;
+    $("r_mnd").textContent = kr(Math.abs(diff) / 12);
+    $("r_pct").textContent = nf(1).format(pct) + " %";
+    $("r_dEff").textContent = ore(dEff);
+    $("r_eEff").textContent = ore(eEff);
+    const bt = $("b_today"), be = $("b_eneas");
+    bt.style.width = (dTot / max * 100) + "%"; bt.textContent = kr(dTot);
+    be.style.width = (eTot / max * 100) + "%"; be.textContent = kr(eTot);
+  }
+
+  ids.forEach(i => {
+    const el = $(i);
+    el.addEventListener("input", calc);
+    el.addEventListener("focus", () => el.select());
+    el.addEventListener("keydown", e => {
+      if (e.key !== "Enter") return;
+      const inputs = [...document.querySelectorAll("input[type=text]:not(:disabled)")];
+      const n = inputs[inputs.indexOf(el) + 1]; if (n) { e.preventDefault(); n.focus(); }
+    });
+  });
+  $("forbruk").addEventListener("blur", () => { const v = parse("forbruk"); if (v != null) $("forbruk").value = num(v); });
+  $("e_fornybar_on").addEventListener("change", calc);
+  calc();
+  // Kjør som PowerPoint-tillegg når Office.js er tilgjengelig; fungerer også som vanlig nettside.
+  if (window.Office && Office.onReady) Office.onReady(function () {});
+})();
+</script>
+</body>
+</html>
